@@ -38,14 +38,28 @@ void Core::update(bool clk){
 
 }
 
+/**
+ * @brief Start core
+ * 
+ */
 void Core::run(){
     this->running = true;
 }
 
+/**
+ * @brief Stop all core activities
+ * 
+ */
 void Core::stop(){
     this->running = false;
 }
 
+/**
+ * @brief Check if core is running
+ * 
+ * @return true Is running
+ * @return false Is stopped
+ */
 bool Core::isRunning(){
     return this->running;
 }
