@@ -7,19 +7,25 @@ class Core{
 
 private:
 
-    CPU cpu;
+    int id;
+    int data;
+    int address;
     bool ready;
     bool read_flag;
     bool write_flag;
-    int data;
-    int address;
+    bool running;
+
+    CPU * cpu;
+    
     
 public:
 
-    Core();
+    Core(int id);
     ~Core();
+    void update(bool clk);
     void run();
-
+    void stop();
+    bool isRunning();
 
 };
 

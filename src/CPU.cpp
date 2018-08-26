@@ -25,21 +25,36 @@ CPU::~CPU(){}
  * @param clk Global Clock
  */
 void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready){
-    //Check actual state
-    switch(this->cpu_state){
-        case PROCESSING:
-            process();
-        break;
-        case READING:
-            read(data,address,read_flag,ready);
-        break;
-        case WRITING:
-            write(data,address,write_flag,ready);
-        break;
-        case FREE:
-            request();
-        break;
+
+    //Posedge
+    if(this->cpu_clk == false && clk == true){
+        this->cpu_clk = true;
+        cout<<"Posedge"<<endl;
+
+
+        //Check actual state
+       /* switch(this->cpu_state){
+            case PROCESSING:
+                process();
+            break;
+            case READING:
+                read(data,address,read_flag,ready);
+            break;
+            case WRITING:
+                write(data,address,write_flag,ready);
+            break;
+            case FREE:
+                request();
+            break;
+        }*/
+
     }
+    //Nededge
+     if(this->cpu_clk == true && clk == false){
+         cout<<"Nededge"<<endl;
+        this->cpu_clk = false;
+     }
+   
 }
 
 /**
