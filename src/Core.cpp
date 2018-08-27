@@ -7,14 +7,28 @@
  * @param id 
  */
 Core::Core(int id){
-    //Initialize wires and flags
+    //Initialize flags
     this->id = id;
-    this->address = -1;
-    this->data = -1;
-    this->ready = false;
-    this->read_flag = false;
-    this->write_flag = false;
+    this->control_clk = false;
     this->running = false;
+
+    //Initialize wires
+    this->data_cache = -1;
+    this->address_cache = -1;
+    this->read_flag_cache = false;
+    this->write_flag_cache = false;
+
+    this->data_cpu = -1;
+    this->address_cpu = -1;
+    this->read_flag_cpu = false;
+    this->write_flag_cpu = false;
+
+    this->snoop_flag_bus = false;
+    this->snoop_flag_cache = false;
+    
+    this->ready = false;
+    
+
     //Initialize components
     this->cpu = new CPU(id);
 }
@@ -28,22 +42,24 @@ Core::~Core(){
 }
 
 /**
- * @brief Start core with all components inside (CPU, Cache, Control)
+ * @brief Start cpu
  * 
  * @param clk Global clk
  */
-void Core::update(bool clk){
+void Core::cpu_loop(bool clk){
 
-    if(this->write_flag){
-        this->ready = true;
-        this->write_flag = false;
-    }
-    else if(this->read_flag){
-        this->data = 69;
-        this->ready = true;
-        this->read_flag = false;
-    }
-    cpu->loop(clk,this->data, this->address, this->write_flag, this->read_flag, this->ready);
+    cpu->loop(clk,this->data_cpu, this->address_cpu, this->write_flag_cpu, this->read_flag_cpu, this->ready);
+
+}
+
+/**
+ * @brief Start cache
+ * 
+ * @param clk Global clk
+ */
+void Core::cache_loop(bool clk){
+
+
 
 }
 
