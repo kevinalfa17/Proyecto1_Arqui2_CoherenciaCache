@@ -34,6 +34,15 @@ Core::~Core(){
  */
 void Core::update(bool clk){
 
+    if(this->write_flag){
+        this->ready = true;
+        this->write_flag = false;
+    }
+    else if(this->read_flag){
+        this->data = 69;
+        this->ready = true;
+        this->read_flag = false;
+    }
     cpu->loop(clk,this->data, this->address, this->write_flag, this->read_flag, this->ready);
 
 }
