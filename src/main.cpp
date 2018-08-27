@@ -1,4 +1,5 @@
 #include "Core.h"
+#include "Cache.h"
 #include <pthread.h>
 #include <unistd.h>
 #include <iostream>
@@ -44,6 +45,10 @@ void * run_core(void *ptr){
 
 int main(){
 
+    Cache * cache = new Cache(1);
+    cache->printMemory();
+
+    /*
     Core core1 = Core(1);
     Core core2 = Core(2);
 
@@ -70,6 +75,7 @@ int main(){
     //Destroy mutex and attributes
     pthread_attr_destroy(&attr); 
     pthread_mutex_destroy(&mutex);
+    */
 
 
     return 0;
