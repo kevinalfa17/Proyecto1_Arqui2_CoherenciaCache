@@ -38,7 +38,7 @@ void * run_core(void *ptr){
     //If core is running, update clk
     while(core->isRunning()){
         pthread_mutex_lock(&mutex); //Lock access
-        core->update(global_clk);
+        core->cpu_loop(global_clk);
         pthread_mutex_unlock(&mutex); //Unlock access
     }
 }
