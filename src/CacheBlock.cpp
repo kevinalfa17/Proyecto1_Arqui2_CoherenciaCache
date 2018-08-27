@@ -24,7 +24,7 @@ CacheBlock::~CacheBlock(){}
  * 
  * @return State 
  */
-string CacheBlock::getState(){
+string CacheBlock::getStateString(){
     switch(this->block_state){
         case INVALID:
             return "Invalid";
@@ -42,6 +42,15 @@ string CacheBlock::getState(){
             return "Exclusive";
         break;
     }
+}
+
+/**
+ * @brief Get the State object
+ * 
+ * @return CacheBlock::State 
+ */
+CacheBlock::State CacheBlock::getState(){
+    return this->block_state;
 }
 
 /**

@@ -12,7 +12,8 @@ public:
     CacheBlock(int tag, State state, int data);
     ~CacheBlock();
 
-    string getState();
+    string getStateString();
+    State getState();
     int getTag();
     int getData();
     void setState(State state);
