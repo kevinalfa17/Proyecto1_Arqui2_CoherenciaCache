@@ -20,9 +20,14 @@ CPU::CPU(int id){
 CPU::~CPU(){}
 
 /**
- * @brief This function shows current processor state and generate random behavior when CPU is free
+ * @brief Update cpu every clock
  * 
- * @param clk Global Clock
+ * @param clk Global clock
+ * @param data data from/to cache control unit
+ * @param address to cache control unit
+ * @param write_flag true if cpu needs to write
+ * @param read_flag true if cpu needs to read
+ * @param ready read/write ready
  */
 void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready){
 
@@ -91,7 +96,7 @@ void CPU::getState(){
 }
 
 /**
- * @brief 
+ * @brief Process data simulation
  * 
  */
 void CPU::process(){
