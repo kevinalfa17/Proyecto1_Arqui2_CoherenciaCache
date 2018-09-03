@@ -77,7 +77,7 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
         cout<<"Control unit: "<< this->id <<endl;
         int state;
 
-        //cout<<"wait: "<< this->wait <<endl;
+        cout<<"wait: "<< this->wait <<endl;
 
         //Read data in memory block
         if(read_flag_cpu && !this->wait){

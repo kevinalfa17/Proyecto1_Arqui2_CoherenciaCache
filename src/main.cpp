@@ -20,12 +20,13 @@ bool core_pending[4];
 bool global_clk = false;
 int cycle_counter = 0;
 
-
 vector<BusMessage*> * queue;
 BusMessage* actualMessage;
 vector<bool> * snoop_flag;
 
-
+//For debug only
+vector<BusMessage*> * CPU_queue;
+bool debug;
 
 
 
@@ -57,7 +58,7 @@ void * run_cpu(void *ptr){
         
         pthread_mutex_lock(&print_mutex); //Lock access        
         pthread_mutex_lock(&mutex[id]); //Lock access
-        core->cpu_loop(global_clk);
+        core->cpu_loop(global_clk, CPU_queue, cycle_counter, debug);
         pthread_cond_signal(&cv1[id]);//CPU-Control synchronization
         pthread_mutex_unlock(&mutex[id]); //Unlock access
         pthread_mutex_unlock(&print_mutex); //Unlock access
@@ -91,7 +92,7 @@ void * run_bus(void *ptr){
     //If bus is running, update clk
     while(bus->isRunning()){
         pthread_mutex_lock(&bus_mutex); //Lock access
-        if(core_pending[0] == true && core_pending[1] == false){ //&& core_pending[2] == true && core_pending[3] == true){
+        if(core_pending[0] == true && core_pending[1] == true){ //&& core_pending[2] == true && core_pending[3] == true){
             core_pending[0] = false;
             core_pending[1] = false;
             core_pending[2] = false;
@@ -130,7 +131,7 @@ int main(){
 
     //Start cores
     core1->run();
-    //core2->run();
+    core2->run();
 
     //Start bus
     bus->run();

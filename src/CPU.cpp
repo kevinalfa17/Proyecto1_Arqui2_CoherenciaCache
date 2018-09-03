@@ -30,7 +30,7 @@ CPU::~CPU(){}
  * @param read_flag true if cpu needs to read
  * @param ready read/write ready
  */
-void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready){
+void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready, vector<BusMessage*> * CPU_queue, bool cycle_counter, bool debug){
 
     //Posedge
     if(this->cpu_clk == false && clk == true){

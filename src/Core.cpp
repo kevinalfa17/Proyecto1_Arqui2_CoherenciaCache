@@ -44,7 +44,7 @@ Core::~Core(){
  * 
  * @param clk Global clk
  */
-void Core::cpu_loop(bool clk){
+void Core::cpu_loop(bool clk, vector<BusMessage*> * CPU_queue, bool cycle_counter, bool debug){
 
     cpu->loop(clk,this->data, this->address, this->write_flag_cpu, this->read_flag_cpu, this->ready,CPU_queue,cycle_counter,debug);
 
