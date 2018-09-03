@@ -11,6 +11,7 @@ CPU::CPU(int id){
     this->process_timer = 0;
     this->cpu_clk = false;
     this->cpu_state = FREE;
+    srand(time(NULL)); //To get more random numbers
 }
 
 /**
@@ -34,7 +35,8 @@ void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & rea
     //Posedge
     if(this->cpu_clk == false && clk == true){
         this->cpu_clk = true;
-        cout<<"Core: "<< this->id <<endl;
+        //if(this->id == 1)
+        cout<<"CPU: "<< this->id <<endl;
 
         //Start new process if CPU is free
         if(this->cpu_state == FREE){
@@ -59,8 +61,10 @@ void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & rea
 
     }
     //Nededge
-     if(this->cpu_clk == true && clk == false){
+     else if(this->cpu_clk == true && clk == false){
         this->cpu_clk = false;
+        cout << "CPU nededge" << endl;
+
      }
    
 }
@@ -81,16 +85,16 @@ int CPU::getId(){
 void CPU::getState(){
      switch(this->cpu_state){
         case PROCESSING:
-            cout << "Processing" << endl;
+            cout <<"CPU: "<<this->id<<" Processing" << endl;
         break;
         case READING:
-            cout << "Reading" << endl;
+            cout <<"CPU: "<<this->id<< " Reading" << endl;
         break;
         case WRITING:
-            cout << "Writing" << endl;;
+            cout <<"CPU: "<<this->id << " Writing" << endl;;
         break;
         case FREE:
-            cout << "Free" << endl;
+            cout <<"CPU: "<<this->id << "Free" << endl;
         break;
     }
 }
@@ -124,9 +128,10 @@ void CPU::process(){
 void CPU::write(int & data, int & address, bool & write_flag, bool & ready){
     //Check if write process finish
     if(ready){
-        cout << "Written data: " << data << " to block: " << address << endl;
+        cout <<"CPU: "<<this->id<< " ******** Written data: " << data << " to block: " << address <<" ********"<< endl;
         
         ready = false;
+        write_flag = false;
         this->cpu_state = FREE;
     }
     //If it is first time setting flag, write the data in random address
@@ -149,15 +154,17 @@ void CPU::write(int & data, int & address, bool & write_flag, bool & ready){
 void CPU::read(int & data, int & address, bool & read_flag, bool & ready){
     //Check if read process finish
     if(ready){
-        cout << "Retrived data: " << data << " from block: " << address << endl;
+        cout <<"CPU: "<<this->id<< " ******** Retrived data: " << data << " from block: " << address <<" **********" <<endl;
         
         ready = false;
+        read_flag = false;
         this->cpu_state = FREE;
     }
     //If it is first time setting flag, read the data from random address
     else if(!read_flag){
         address = rand() % 16; //0-15 memory random block
         read_flag = true;
+        cout << "CPU: Addr" << address << endl;
     }
 }
 
@@ -167,9 +174,11 @@ void CPU::read(int & data, int & address, bool & read_flag, bool & ready){
  */
 void CPU::request(){
     this->cpu_state = static_cast<CPU::State>(rand() % 3);
+    //this->cpu_state = WRITING;
 
     //Reset processing timer variable
     if(this->cpu_state == PROCESSING){
-        this->process_timer = 2; //Make it random
+        this->cpu_state = WRITING;
+        //this->process_timer = 2; //Make it random
     }
 }

@@ -9,28 +9,26 @@
 Core::Core(int id){
     //Initialize flags
     this->id = id;
-    this->control_clk = false;
     this->running = false;
 
     //Initialize wires
-    this->data_cache = -1;
-    this->address_cache = -1;
-    this->read_flag_cache = false;
-    this->write_flag_cache = false;
+    this->data = -1;
+    this->address = -1;
+    this->snoop_address_cache = -1;
+    this->snoop_data_cache = -1;
 
-    this->data_cpu = -1;
-    this->address_cpu = -1;
+    this->ready = false;
+
     this->read_flag_cpu = false;
     this->write_flag_cpu = false;
 
-    this->snoop_flag_bus = false;
-    this->snoop_flag_cache = false;
-    
-    this->ready = false;
-    
+    this->read_flag_cache = false;
+    this->write_flag_cache = false;
+    this->snoop_flag_cache = false;  
 
     //Initialize components
     this->cpu = new CPU(id);
+    this->control = new Control(id);
 }
 
 /**
@@ -48,7 +46,7 @@ Core::~Core(){
  */
 void Core::cpu_loop(bool clk){
 
-    cpu->loop(clk,this->data_cpu, this->address_cpu, this->write_flag_cpu, this->read_flag_cpu, this->ready);
+    cpu->loop(clk,this->data, this->address, this->write_flag_cpu, this->read_flag_cpu, this->ready,CPU_queue,cycle_counter,debug);
 
 }
 
@@ -60,6 +58,17 @@ void Core::cpu_loop(bool clk){
 void Core::cache_loop(bool clk){
 
 
+
+}
+
+/**
+ * @brief Start control unit
+ * 
+ * @param clk Global clk
+ */
+void Core::control_loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage){
+
+    control->loop(clk,this->data, this->address, this->write_flag_cpu, this->read_flag_cpu, this->write_flag_cache, this->read_flag_cache, this->ready, snoop_flag, queue, actualMessage, this->snoop_flag_cache, this->snoop_data_cache, this->snoop_address_cache);
 
 }
 
@@ -87,4 +96,13 @@ void Core::stop(){
  */
 bool Core::isRunning(){
     return this->running;
+}
+
+/**
+ * @brief get core number
+ * 
+ * @return int 
+ */
+int Core::getId(){
+    return this->id;
 }
