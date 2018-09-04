@@ -1,5 +1,7 @@
 #include "CPU.h"
 
+#define MEMORY_BLOCKS 5
+
 
 /**
  * @brief Construct a new CPU::CPU object
@@ -36,7 +38,7 @@ void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & rea
     if(this->cpu_clk == false && clk == true){
         this->cpu_clk = true;
         //if(this->id == 1)
-        cout<<"CPU: "<< this->id <<endl;
+        //cout<<"CPU: "<< this->id <<endl;
 
         //Start new process if CPU is free
         if(this->cpu_state == FREE){
@@ -44,7 +46,7 @@ void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & rea
         }
         
         //Print actual state
-        this->getState();
+        //this->getState();
 
         //Check actual state
         switch(this->cpu_state){
@@ -63,7 +65,7 @@ void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & rea
     //Nededge
      else if(this->cpu_clk == true && clk == false){
         this->cpu_clk = false;
-        cout << "CPU nededge" << endl;
+        //cout << "CPU nededge" << endl;
 
      }
    
@@ -127,7 +129,7 @@ void CPU::process(){
  */
 void CPU::write(int & data, int & address, bool & write_flag, bool & ready){
     //Check if write process finish
-    if(ready){
+    if(ready && write_flag){
         cout <<"CPU: "<<this->id<< " ******** Written data: " << data << " to block: " << address <<" ********"<< endl;
         
         ready = false;
@@ -137,7 +139,7 @@ void CPU::write(int & data, int & address, bool & write_flag, bool & ready){
     //If it is first time setting flag, write the data in random address
     else if(!write_flag){
         data = rand() % 256; //Random 1byte data
-        address = rand() % 15; //0-15 memory random block
+        address = rand() % MEMORY_BLOCKS; //0-15 memory random block
         write_flag = true;
     }
 
@@ -153,7 +155,7 @@ void CPU::write(int & data, int & address, bool & write_flag, bool & ready){
  */
 void CPU::read(int & data, int & address, bool & read_flag, bool & ready){
     //Check if read process finish
-    if(ready){
+    if(ready && read_flag){
         cout <<"CPU: "<<this->id<< " ******** Retrived data: " << data << " from block: " << address <<" **********" <<endl;
         
         ready = false;
@@ -162,9 +164,8 @@ void CPU::read(int & data, int & address, bool & read_flag, bool & ready){
     }
     //If it is first time setting flag, read the data from random address
     else if(!read_flag){
-        address = rand() % 16; //0-15 memory random block
+        address = rand() % MEMORY_BLOCKS; //0-15 memory random block
         read_flag = true;
-        cout << "CPU: Addr" << address << endl;
     }
 }
 

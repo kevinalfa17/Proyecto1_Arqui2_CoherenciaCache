@@ -20,10 +20,9 @@ void Bus::loop(bool clk, vector<BusMessage *> *queue, vector<bool> *snoop_flag, 
         this->bus_clk = true;
         cout << "Bus" << endl;
 
-        cout <<"ACTUAL ID "<< actualMessage->getId()<<endl;
-        cout <<"ACTUAL ADDR "<< actualMessage->getAddress()<<endl;
+        
 
-             cout <<"COLA ANTES"<<endl;
+            cout <<"----------COLA BUS----------"<<endl;
             for(int i = 0; i<queue->size(); i++){
                 cout<<"i: "<<i<<" id: "<<queue->at(i)->getId()<<" type: "<<queue->at(i)->getType()<<" Address: "<<queue->at(i)->getAddress()<<endl;
             }
@@ -34,23 +33,51 @@ void Bus::loop(bool clk, vector<BusMessage *> *queue, vector<bool> *snoop_flag, 
             this->bussy = true; //Do not process more message in queue for now
             this->broadcast(snoop_flag); //Broadcast message to every core
         }
+         cout <<"-------------------------------"<<endl;
 
-        cout <<"COLA DESPUES"<<endl;
-            for(int i = 0; i<queue->size(); i++){
-                cout<<"i: "<<i<<" id: "<<queue->at(i)->getId()<<" type: "<<queue->at(i)->getType()<<" Address: "<<queue->at(i)->getAddress()<<endl;
-            }
+        cout <<"-----------ActualMessage ID "<< actualMessage->getId()<<" Address "<< actualMessage->getAddress()<<" Type "<< actualMessage->getType()<<"----------"<<endl;
+       
 
-
+        //ESTO LO HARIA LA MEMORIA
         if(this->bussy == true){
+            switch (actualMessage->getType()){
+                //READ
+                case 0:
+                    //SEARCH AND FIND IN MEMORY
+                    cout <<"--SEARCH AND FIND--"<<endl;
+                    actualMessage->setType(2);
+                    actualMessage->setData(69);
+                    cout << "--READY FROM BUS-- TYPE: " <<actualMessage->getType()<<  endl;
+                    this->broadcast(snoop_flag);
+                    this->bussy = false;
+                    queue->erase(queue->begin());
+                    break;
+                //WRITE
+                case 1:
+                    //WRITE IN MEMORY
+                    cout <<"--WRITE MEMORY--"<<endl;
+                    actualMessage->setType(3);
+                    cout << "--READY FROM BUS-- TYPE: " <<actualMessage->getType()<<  endl;
+                    this->broadcast(snoop_flag);
+                    this->bussy = false;
+                    queue->erase(queue->begin());
+                    break;
+                }
+                
+
+        }
+        //FIN ESTO LO HARIA LA MEMORIA
+
+        /*if(this->bussy == true){
             
             //Read/Write message is ready
             if(actualMessage->getType() == 2 || actualMessage->getType() == 3){
-                cout << "Ready!!!" <<  endl;
+                cout << "--READY FROM BUS-- TYPE: " <<actualMessage->getType()<<  endl;
                 this->broadcast(snoop_flag);
                 this->bussy = false;
                 queue->erase(queue->begin());
             }
-        }
+        }*/
     }
     //Nededge
     else if (this->bus_clk == true && clk == false){
@@ -59,23 +86,23 @@ void Bus::loop(bool clk, vector<BusMessage *> *queue, vector<bool> *snoop_flag, 
         //cout << "Bus nededge" << endl;
 
         //ESTO LO HARIA LA MEMORIA
-        if(this->bussy){
+        /*if(this->bussy){
             switch (actualMessage->getType()){
                 //READ
                 case 0:
                     //SEARCH AND FIND IN MEMORY
-                    cout <<"SEARCH AND FIND"<<endl;
+                    cout <<"--SEARCH AND FIND--"<<endl;
                     actualMessage->setType(2);
                     actualMessage->setData(69);
                     break;
                 //WRITE
                 case 1:
                     //WRITE IN MEMORY
-                    cout <<"WRITE MEMORY"<<endl;
+                    cout <<"--WRITE MEMORY--"<<endl;
                     actualMessage->setType(3);
                     break;
             }
-        }
+        }*/
         //FIN ESTO LO HARIA LA MEMORIA
     }
 }

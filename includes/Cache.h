@@ -4,7 +4,6 @@
 #include "CacheBlock.h"
 #include <vector>
 #include <iostream>
-#include <string>
 
 using namespace std;
 
@@ -24,9 +23,8 @@ public:
     ~Cache();
 
     void printMemory();
-    void loop(bool clk,int & data, int & address, CacheBlock::State & state, bool & write_flag, bool & read_flag, bool & snoop_flag, bool & state_flag);
+    void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & snoop_flag_cache, int & snoop_data_cache, int & snoop_address_cache);
     int getId();
-    CacheBlock::State getBlockState(int block_tag);
 };
 
 #endif

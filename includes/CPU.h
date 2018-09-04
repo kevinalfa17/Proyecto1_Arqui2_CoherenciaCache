@@ -3,6 +3,10 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
+#include <vector>
+#include "BusMessage.h"
+
 using namespace std;
 
 class CPU{
@@ -24,7 +28,7 @@ public:
     CPU(int id);
     ~CPU();  
 
-    void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready);
+    void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready, vector<BusMessage*> * CPU_queue, bool cycle_counter, bool debug);
     int getId();
     void getState();
     

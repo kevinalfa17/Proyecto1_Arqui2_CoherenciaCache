@@ -11,4 +11,4 @@
 
 ```
 ```
-
+g++ *.cpp -o main -I../includes -lpthread
