@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <string.h>
 #include "BusMessage.h"
 using namespace std;
 

@@ -20,11 +20,23 @@ void Bus::loop(bool clk, vector<BusMessage *> *queue, vector<bool> *snoop_flag, 
         this->bus_clk = true;
         cout << "Bus" << endl;
 
-        
+            
 
             cout <<"----------COLA BUS----------"<<endl;
             for(int i = 0; i<queue->size(); i++){
-                cout<<"i: "<<i<<" id: "<<queue->at(i)->getId()<<" type: "<<queue->at(i)->getType()<<" Address: "<<queue->at(i)->getAddress()<<endl;
+                string type;
+
+                if(queue->at(i)->getType()== 0){
+                    type = "Read";
+                }
+                else if(queue->at(i)->getType() == 1){
+                    type = "Write";
+                }
+                else{
+                    type = "Ready";
+                }
+
+                cout<<"CPU"<< queue->at(i)->getId()<< " type: "<<type<<" Address: "<<queue->at(i)->getAddress()<<endl;
             }
 
         if (queue->size() > 0 && this->bussy == false){ //There are request to process

@@ -270,12 +270,25 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
                         //Update block state
                         this->states->at(actualMessage->getAddress()) = SHARED;
                     }
+                    //Snoop read from other core
+                    else if(actualMessage->getType() == 2 && actualMessage->getId() != this->id){ 
+                        //Update block state
+                        this->states->at(actualMessage->getAddress()) = SHARED;
+                    }
 
                     //Snoop write from other core
                     else if(actualMessage->getType() == 1 && actualMessage->getId() != this->id){ 
                         //Update block state
                         this->states->at(actualMessage->getAddress()) = INVALID;
                         cout<<"*********Control: "<<this->id<<" INVALIDATED block:" << actualMessage->getAddress() <<"*********"<<endl;
+                    }
+
+                    //Snoop write from other core
+                    else if(actualMessage->getType() == 3 && actualMessage->getId() != this->id){ 
+                        //Update block state
+                        this->states->at(actualMessage->getAddress()) = INVALID;
+                        cout<<"*********Control: "<<this->id<<" INVALIDATED block:" << actualMessage->getAddress() <<"*********"<<endl;
+
                     }
 
                     //Write message received by bus
@@ -343,6 +356,13 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
 
                    //Snoop write from other core
                     else if(actualMessage->getType() == 1 && actualMessage->getId() != this->id){ 
+                        //Update block state
+                        this->states->at(actualMessage->getAddress()) = INVALID;
+                        cout<<"*********Control: "<<this->id<<" INVALIDATED block:" << actualMessage->getAddress() <<"*********"<<endl;
+
+                    }
+                    //Snoop write from other core
+                    else if(actualMessage->getType() == 3 && actualMessage->getId() != this->id){ 
                         //Update block state
                         this->states->at(actualMessage->getAddress()) = INVALID;
                         cout<<"*********Control: "<<this->id<<" INVALIDATED block:" << actualMessage->getAddress() <<"*********"<<endl;
