@@ -28,7 +28,7 @@ public:
     CPU(int id);
     ~CPU();  
 
-    void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready, vector<BusMessage*> * CPU_queue, bool cycle_counter, bool debug);
+    void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready);
     int getId();
     void getState();
     

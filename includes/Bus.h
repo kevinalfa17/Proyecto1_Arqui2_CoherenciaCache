@@ -13,9 +13,7 @@ class Bus{
 
 private:
     int id;
-    bool bussy; 
     bool bus_clk;
-    int handler;
     bool running;
 
     void broadcast(vector<bool> *snoop_flag);
@@ -24,7 +22,7 @@ public:
     Bus();
     ~Bus();
 
-    void loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage);
+    void loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage, bool & bussy);
     void run();
     void stop();
     bool isRunning();

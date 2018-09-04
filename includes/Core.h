@@ -37,7 +37,7 @@ public:
 
     Core(int id);
     ~Core();
-    void cpu_loop(bool clk, vector<BusMessage*> * CPU_queue, bool cycle_counter, bool debug);
+    void cpu_loop(bool clk);
     void cache_loop(bool clk);
     void control_loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage* actual_message);
     void run();

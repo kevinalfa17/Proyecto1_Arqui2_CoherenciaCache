@@ -2,20 +2,19 @@
 #include "Cache.h"
 #include "Bus.h"
 #include "BusMessage.h"
+#include "Memory.h"
 
 #include <pthread.h>
 #include <unistd.h>
 #include <iostream>
- #include <time.h>
+#include <time.h>
 
 using namespace std;
 
 pthread_mutex_t mutex[4]; 
 pthread_mutex_t bus_mutex; 
-pthread_mutex_t print_mutex; 
 pthread_cond_t cv1[4];
-pthread_cond_t cv2[4];
-pthread_cond_t cv3[4];
+pthread_cond_t cv2;
 
 bool core_pending[4];
 bool global_clk = false;
@@ -24,33 +23,18 @@ int cycle_counter = 0;
 vector<BusMessage*> * queue;
 BusMessage* actualMessage;
 vector<bool> * snoop_flag;
-
-//Struct configuracion for nanosleep
-struct timespec sleep_struct = {0};
-
-
-
-//For debug only
-vector<BusMessage*> * CPU_queue;
-bool debug;
-
+bool bussy;
 
 
 void * run_clk(void *ptr){
 
     while(true){
-
-        
-
-        int q;
+        int next;
         //cout <<"Enter to continue 0"<<endl;
-        cin>>q;
+        cin>>next;
 
-
-        if(q == 0){
-        
+        if(next == 0){
             global_clk = !global_clk;
-
             //Print cycle number in the posedge
             if(global_clk){
                 cout<<"---------------------------Posedge: Cycle: "<<cycle_counter<<"----------------------------------"<<endl;
@@ -61,7 +45,7 @@ void * run_clk(void *ptr){
                 cout<<"---------------------------Nededge: Cycle: "<<cycle_counter<<"----------------------------------"<<endl;
                 sleep(1);
                 }
-            q=1;
+            next = 1;
         }
     }  
 }
@@ -73,17 +57,10 @@ void * run_cpu(void *ptr){
 
     //If core is running, update clk
     while(core->isRunning()){
-        //pthread_mutex_lock(&print_mutex); //Lock access        
         pthread_mutex_lock(&mutex[id]); //Lock access
-        core->cpu_loop(global_clk, CPU_queue, cycle_counter, debug);
+        core->cpu_loop(global_clk);
         pthread_cond_signal(&cv1[id]);//CPU-Control synchronization
         pthread_mutex_unlock(&mutex[id]); //Unlock access
-        //pthread_mutex_unlock(&print_mutex); //Unlock access
-        sleep_struct.tv_sec = 0;
-        sleep_struct.tv_nsec = 10000;
-        //nanosleep(&sleep_struct, (struct timespec *)NULL); //Sleep for 10ms
-
-
     }
 }
 
@@ -92,7 +69,6 @@ void * run_control(void *ptr){
     Core * core = ((Core *)ptr);
     int id = core->getId();
 
-
     //If core is running, update clk
     while(core->isRunning()){
         
@@ -100,14 +76,14 @@ void * run_control(void *ptr){
         pthread_mutex_lock(&mutex[id]); //Lock access
         pthread_cond_wait(&cv1[id],&mutex[id]);//CPU-Control synchronization
         core->control_loop(global_clk, queue, snoop_flag, actualMessage);
+        //Flag for bus access
         if(core_pending[id] == false){
-        core_pending[id] = true;
-    }
+            core_pending[id] = true;
+        }
+
         pthread_mutex_unlock(&mutex[id]); //Unlock access
         pthread_mutex_unlock(&bus_mutex); //Unlock access
-        sleep_struct.tv_sec = 0;
-        sleep_struct.tv_nsec = 10000;
-        //nanosleep(&sleep_struct, (struct timespec *)NULL); //Sleep for 10ms
+
     }
 }
 
@@ -123,13 +99,25 @@ void * run_bus(void *ptr){
             core_pending[1] = false;
             core_pending[2] = false;
             core_pending[3] = false;
-            bus->loop(global_clk, queue, snoop_flag, actualMessage);
+            bus->loop(global_clk, queue, snoop_flag, actualMessage, bussy);
+            pthread_cond_signal(&cv2);//Bus-Memory synchronization
            
         }
         pthread_mutex_unlock(&bus_mutex); //Unlock access
-        sleep_struct.tv_sec = 0;
-        sleep_struct.tv_nsec = 10000;
-        //nanosleep(&sleep_struct, (struct timespec *)NULL); //Sleep for 10ms
+    }
+}
+
+
+void * run_memory(void *ptr){
+
+    Memory * memory = ((Memory *)ptr);
+
+    //If memory is running, update clk
+    while(memory->isRunning()){
+        pthread_mutex_lock(&bus_mutex); //Lock access
+        pthread_cond_wait(&cv2,&bus_mutex);//Bus-Memory synchronization
+        memory->loop(global_clk, bussy, actualMessage, snoop_flag, queue);
+        pthread_mutex_unlock(&bus_mutex); //Unlock access
     }
 
 }
@@ -140,6 +128,7 @@ int main(){
     queue = new vector<BusMessage*>();
     actualMessage = new BusMessage(-2, -2, -2, -2);
     snoop_flag = new vector<bool>();
+    bussy = false;
 
     //Flags initialization
     for(int i = 0; i < 4; i++){
@@ -151,15 +140,6 @@ int main(){
     //Cache * cache = new Cache(1);
     //cache->printMemory();
 
-    //Debug
-    /*if(debug){
-        BusMessage * message;
-        CPU_queue = new vector<BusMessage*>;
-        //BusMessage(int id, int type, int address, int data);
-        message = new BusMessage(0,)
-
-    }*/
-
     //Create cores
     Core * core1 = new Core(0);
     Core * core2 = new Core(1);
@@ -168,6 +148,9 @@ int main(){
 
     //Create bus
     Bus * bus = new Bus();
+
+    //Create memory
+    Memory * memory = new Memory();
 
     //Start cores
     core1->run();
@@ -178,8 +161,11 @@ int main(){
     //Start bus
     bus->run();
 
+    //Start memory
+    memory->run();
+
     //Create the threads
-    pthread_t thread_cpu1,thread_cpu2,thread_cpu3,thread_cpu4,thread_control1,thread_control2,thread_control3,thread_control4, thread_bus, thread_clk;
+    pthread_t thread_cpu1,thread_cpu2,thread_cpu3,thread_cpu4,thread_control1,thread_control2,thread_control3,thread_control4, thread_bus, thread_memory, thread_clk;
     pthread_attr_t attr;
     void* ret;
 
@@ -187,12 +173,9 @@ int main(){
     for(int i = 0; i > 4; i++){
         pthread_mutex_init(&mutex[i], NULL); 
         pthread_cond_init(&cv1[i], 0);
-        pthread_cond_init(&cv2[i], 0);
-        pthread_cond_init(&cv3[i], 0);
     }
-
+    pthread_cond_init(&cv2, 0);
     pthread_mutex_init(&bus_mutex, NULL); 
-    //pthread_mutex_init(&print_mutex, NULL); 
     
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -213,6 +196,7 @@ int main(){
     pthread_create(&thread_control4, &attr, &run_control, core4);
 
     pthread_create(&thread_bus, &attr, &run_bus, bus);
+    pthread_create(&thread_memory, &attr, &run_memory, memory);
 
     
 
@@ -232,20 +216,18 @@ int main(){
 
     pthread_join(thread_bus, &ret);
 
+    pthread_join(thread_memory, &ret);
+
     pthread_join(thread_clk, &ret);
     
     //Destroy mutex and attributes
     pthread_attr_destroy(&attr); 
     for(int i = 0; i > 4; i++){
         pthread_mutex_destroy(&mutex[i]);
-        pthread_cond_destroy(&cv1[i]);
-        pthread_cond_destroy(&cv2[i]);
-        pthread_cond_destroy(&cv3[i]);
+        pthread_cond_destroy(&cv1[i]); 
     }
+    pthread_cond_destroy(&cv2);
     pthread_mutex_destroy(&bus_mutex);
-    pthread_mutex_destroy(&print_mutex);
     
-
-
     return 0;
 }
