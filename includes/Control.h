@@ -21,7 +21,7 @@ public:
     void setState(int block_number,State state);
     string getStateString(int block_number);
     
-    void loop(bool clk,int & data, int & address, bool & write_flag_cpu, bool & read_flag_cpu, bool & write_flag_cache, bool & read_flag_cache, bool & ready, vector<bool> * snoop_flag,  vector<BusMessage*> * queue, BusMessage * actualMessage, bool & snoop_flag_cache, int & snoop_data_cache, int & snoop_address_cache);
+    void loop(bool clk,int & data, int & address, bool & write_flag_cpu, bool & read_flag_cpu, bool & write_flag_cache, bool & read_flag_cache, bool & ready, vector<bool> * snoop_flag,  vector<BusMessage*> * queue, BusMessage * actualMessage, bool & snoop_flag_cache, int & snoop_data_cache, int & snoop_address_cache, bool & busEnable, bool & cacheEnable);
     int getId();
 
 private:

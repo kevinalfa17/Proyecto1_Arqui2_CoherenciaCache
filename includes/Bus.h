@@ -22,7 +22,7 @@ public:
     Bus();
     ~Bus();
 
-    void loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage, bool & bussy);
+    void loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage, bool & bussy, bool & memoryEnable);
     void run();
     void stop();
     bool isRunning();

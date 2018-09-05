@@ -73,6 +73,8 @@ void Memory::loop(bool clk, bool & bussy, BusMessage * actualMessage, vector<boo
     }
     //Nededge
     else if (this->memory_clk == true && clk == false){
+                cout << "Memory Nededge" << endl;
+
         this->memory_clk = false;
     }
 }

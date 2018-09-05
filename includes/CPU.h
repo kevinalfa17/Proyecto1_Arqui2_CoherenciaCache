@@ -28,7 +28,7 @@ public:
     CPU(int id);
     ~CPU();  
 
-    void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready);
+    void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready, bool & controlEnable);
     int getId();
     void getState();
     

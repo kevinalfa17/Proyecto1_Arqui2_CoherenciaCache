@@ -29,6 +29,7 @@ Core::Core(int id){
     //Initialize components
     this->cpu = new CPU(id);
     this->control = new Control(id);
+    this->cache = new Cache(id);
 }
 
 /**
@@ -44,9 +45,9 @@ Core::~Core(){
  * 
  * @param clk Global clk
  */
-void Core::cpu_loop(bool clk){
+void Core::cpu_loop(bool clk, bool & controlEnable){
 
-    cpu->loop(clk,this->data, this->address, this->write_flag_cpu, this->read_flag_cpu, this->ready);
+    cpu->loop(clk,this->data, this->address, this->write_flag_cpu, this->read_flag_cpu, this->ready, controlEnable);
 
 }
 
@@ -57,8 +58,7 @@ void Core::cpu_loop(bool clk){
  */
 void Core::cache_loop(bool clk){
 
-
-
+    cache->loop(clk,this->data,this->address,this->write_flag_cache,this->read_flag_cache, this->snoop_flag_cache, this->snoop_data_cache, this->snoop_address_cache);
 }
 
 /**
@@ -66,9 +66,9 @@ void Core::cache_loop(bool clk){
  * 
  * @param clk Global clk
  */
-void Core::control_loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage){
+void Core::control_loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage, bool & busEnable, bool & cacheEnable){
 
-    control->loop(clk,this->data, this->address, this->write_flag_cpu, this->read_flag_cpu, this->write_flag_cache, this->read_flag_cache, this->ready, snoop_flag, queue, actualMessage, this->snoop_flag_cache, this->snoop_data_cache, this->snoop_address_cache);
+    control->loop(clk,this->data, this->address, this->write_flag_cpu, this->read_flag_cpu, this->write_flag_cache, this->read_flag_cache, this->ready, snoop_flag, queue, actualMessage, this->snoop_flag_cache, this->snoop_data_cache, this->snoop_address_cache, busEnable, cacheEnable);
 
 }
 
@@ -106,3 +106,12 @@ bool Core::isRunning(){
 int Core::getId(){
     return this->id;
 }
+
+/**
+ * @brief print content of cache memory
+ * 
+ */
+void Core::printCache(){
+    this->cache->printMemory();
+}
+

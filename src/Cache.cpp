@@ -27,7 +27,7 @@ Cache::~Cache(){
 void Cache::initMemory(){
     this->memoryBlocks = new vector<CacheBlock*>();
     for(int i = 0; i < 16; i++){
-        CacheBlock* cacheBlock = new CacheBlock(i,0);
+        CacheBlock* cacheBlock = new CacheBlock(i,i+100);
         this->memoryBlocks->push_back(cacheBlock);
     }
 }
@@ -61,16 +61,19 @@ void Cache::loop(bool clk,int & data, int & address, bool & write_flag, bool & r
 
         //Read data in memory block
         if(read_flag){
-            
+            read_flag = false;
+            data = this->memoryBlocks->at(address)->getData();
         }
         //Write data in memory block
         else if(write_flag){
-        
+            write_flag = false;
+            this->memoryBlocks->at(address)->setData(data);
         }
     }
     //Nededge
      if(this->cache_clk == true && clk == false){
         this->cache_clk = false;
+        cout<<"Cache nededge: "<< this->id <<endl; 
 
         //Read data in memory block for snoop handle
         if(snoop_flag_cache){

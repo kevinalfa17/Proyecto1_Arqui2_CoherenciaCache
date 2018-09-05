@@ -9,7 +9,7 @@ Bus::Bus()
 
 Bus::~Bus(){}
 
-void Bus::loop(bool clk, vector<BusMessage *> *queue, vector<bool> *snoop_flag, BusMessage * actualMessage,bool & bussy)
+void Bus::loop(bool clk, vector<BusMessage *> *queue, vector<bool> *snoop_flag, BusMessage * actualMessage, bool & bussy, bool & memoryEnable)
 {
 
     //Posedge
@@ -56,12 +56,15 @@ void Bus::loop(bool clk, vector<BusMessage *> *queue, vector<bool> *snoop_flag, 
 
         cout <<"-----------ActualMessage CPU"<< actualMessage->getId()<<" Address "<< actualMessage->getAddress()<<" Type "<<type<<"----------"<<endl;
        
-
+        memoryEnable = true;
        
     }
     //Nededge
     else if (this->bus_clk == true && clk == false){
+        cout << "Bus Nededge" << endl;
+
         this->bus_clk = false;
+        memoryEnable = true;
       
     }
 }

@@ -32,17 +32,17 @@ CPU::~CPU(){}
  * @param read_flag true if cpu needs to read
  * @param ready read/write ready
  */
-void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready){
+void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready, bool & controlEnable){
 
     //Posedge
     if(this->cpu_clk == false && clk == true){
         this->cpu_clk = true;
         //if(this->id == 1)
-        //cout<<"CPU: "<< this->id <<endl;
+        cout<<"CPU: "<< this->id <<endl;
 
         //Start new process if CPU is free
         if(this->cpu_state == FREE){
-            request();
+            //request();
         }
         
         //Print actual state
@@ -61,11 +61,13 @@ void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & rea
             break;
         }
 
+        controlEnable = true;
     }
     //Nededge
      else if(this->cpu_clk == true && clk == false){
         this->cpu_clk = false;
-        //cout << "CPU nededge" << endl;
+        cout << "CPU nededge: " << this->id<< endl;
+        controlEnable = true;
 
      }
    
