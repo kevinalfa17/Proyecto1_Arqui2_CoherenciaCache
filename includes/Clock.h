@@ -1,3 +1,11 @@
+/**
+ * @brief Clock Model
+ * 
+ * @file Clock.h
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #ifndef CLOCK_H
 #define CLOCK_H
 

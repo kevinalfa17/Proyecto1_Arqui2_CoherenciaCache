@@ -1,3 +1,11 @@
+/**
+ * @brief Cache block model
+ * 
+ * @file CacheBlock.h
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #ifndef CACHE_BLOCK_H
 #define CACHE_BLOCK_H
 

@@ -1,3 +1,11 @@
+/**
+ * @brief Class that represent bus model
+ * 
+ * @file Bus.h
+ * @author Kevin Alfaro 
+ * @date 2018-09-05
+ */
+
 #ifndef BUS_H
 #define BUS_H
 
@@ -6,7 +14,6 @@
 #include <string.h>
 #include "BusMessage.h"
 using namespace std;
-
 
 
 class Bus{

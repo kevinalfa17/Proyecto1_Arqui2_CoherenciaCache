@@ -1,3 +1,11 @@
+/**
+ * @brief Core model
+ * 
+ * @file Core.cpp
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #include "Core.h"
 
 
@@ -43,7 +51,8 @@ Core::~Core(){
 /**
  * @brief Start cpu
  * 
- * @param clk Global clk
+ * @param clk 
+ * @param controlEnable 
  */
 void Core::cpu_loop(bool clk, bool & controlEnable){
 
@@ -54,7 +63,7 @@ void Core::cpu_loop(bool clk, bool & controlEnable){
 /**
  * @brief Start cache
  * 
- * @param clk Global clk
+ * @param clk 
  */
 void Core::cache_loop(bool clk){
 
@@ -64,7 +73,12 @@ void Core::cache_loop(bool clk){
 /**
  * @brief Start control unit
  * 
- * @param clk Global clk
+ * @param clk 
+ * @param queue 
+ * @param snoop_flag 
+ * @param actualMessage 
+ * @param busEnable 
+ * @param cacheEnable 
  */
 void Core::control_loop(bool clk, vector<BusMessage*> * queue, vector<bool> * snoop_flag, BusMessage * actualMessage, bool & busEnable, bool & cacheEnable){
 
@@ -112,6 +126,20 @@ int Core::getId(){
  * 
  */
 void Core::printCache(){
-    this->cache->printMemory();
+    vector<string> states = this->control->getStates();
+    vector<int> data = this->cache->getData();
+
+    cout<<"|| TAG ||  STATE  || DATA ||"<<endl;
+    for(int i = 0; i < 16; i++){
+       cout << "||  " << i << "  || " << states.at(i) << " ||  " << data.at(i) <<" ||"<<endl;
+    }
+}
+
+/**
+ * @brief Return status of cpu
+ * 
+ */
+string Core::printCPUStatus(){
+    this->cpu->getState();
 }
 

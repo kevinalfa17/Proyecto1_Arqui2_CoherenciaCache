@@ -1,3 +1,11 @@
+/**
+ * @brief Model of message handled by bus and used by other components
+ * 
+ * @file BusMessage.h
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #ifndef BUS_MESSAGE_H
 #define BUS_MESSAGE_H
 

@@ -1,3 +1,11 @@
+/**
+ * @brief Memory model
+ * 
+ * @file Memory.h
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #ifndef MEMORY_H
 #define MEMORY_H
 
@@ -12,8 +20,10 @@ class Memory{
 private:
 
     int blocks[16];
+    int counter;
     bool running;
     bool memory_clk;
+    
     
 public:
     Memory();

@@ -27,7 +27,7 @@ Cache::~Cache(){
 void Cache::initMemory(){
     this->memoryBlocks = new vector<CacheBlock*>();
     for(int i = 0; i < 16; i++){
-        CacheBlock* cacheBlock = new CacheBlock(i,i+100);
+        CacheBlock* cacheBlock = new CacheBlock(i,0);
         this->memoryBlocks->push_back(cacheBlock);
     }
 }
@@ -44,20 +44,36 @@ void Cache::printMemory(){
 }
 
 /**
- * @brief Update cache in every clock cycle
+ * @brief Get the Data object
  * 
- * @param clk Global clock
- * @param data data from/to control unit
- * @param address address from/to control unit
- * @param write_flag true if control unit needs to write
- * @param read_flag true if control unit needs to read
- * @param snoop_flag true if control unit will update state after snoop 
+ * @return vector<int> 
+ */
+vector<int> Cache::getData(){
+    vector<int> data;
+    for(int i = 0; i < 16; i++){
+        data.push_back(memoryBlocks->at(i)->getData());
+    }
+
+    return data;
+}
+
+/**
+ * @brief Update cache every clock
+ * 
+ * @param clk 
+ * @param data 
+ * @param address 
+ * @param write_flag 
+ * @param read_flag 
+ * @param snoop_flag_cache 
+ * @param snoop_data_cache 
+ * @param snoop_address_cache 
  */
 void Cache::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & snoop_flag_cache, int & snoop_data_cache, int & snoop_address_cache){
     //Posedge
     if(this->cache_clk == false && clk == true){
         this->cache_clk = true;
-        cout<<"Cache: "<< this->id <<endl;        
+        //cout<<"Cache: "<< this->id <<endl;        
 
         //Read data in memory block
         if(read_flag){
@@ -73,12 +89,12 @@ void Cache::loop(bool clk,int & data, int & address, bool & write_flag, bool & r
     //Nededge
      if(this->cache_clk == true && clk == false){
         this->cache_clk = false;
-        cout<<"Cache nededge: "<< this->id <<endl; 
+        //cout<<"Cache nededge: "<< this->id <<endl; 
 
         //Read data in memory block for snoop handle
         if(snoop_flag_cache){
             snoop_flag_cache = 0;
-            snoop_data_cache = this->memoryBlocks->at(snoop_address_cache)->getData();
+             this->memoryBlocks->at(snoop_address_cache)->setData(snoop_data_cache);
         }
     
      }

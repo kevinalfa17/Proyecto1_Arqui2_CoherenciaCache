@@ -1,3 +1,11 @@
+/**
+ * @brief Cache memory model
+ * 
+ * @file Cache.h
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #ifndef CACHE_H
 #define CACHE_H
 
@@ -25,6 +33,7 @@ public:
     void printMemory();
     void loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & snoop_flag_cache, int & snoop_data_cache, int & snoop_address_cache);
     int getId();
+    vector<int> getData();
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "CPU.h"
 
-#define MEMORY_BLOCKS 5
+#define MEMORY_BLOCKS 2
 
 
 /**
@@ -23,26 +23,25 @@ CPU::CPU(int id){
 CPU::~CPU(){}
 
 /**
- * @brief Update cpu every clock
+ * @brief Update CPU every clock
  * 
- * @param clk Global clock
- * @param data data from/to cache control unit
- * @param address to cache control unit
- * @param write_flag true if cpu needs to write
- * @param read_flag true if cpu needs to read
- * @param ready read/write ready
+ * @param clk 
+ * @param data 
+ * @param address 
+ * @param write_flag 
+ * @param read_flag 
+ * @param ready 
+ * @param controlEnable 
  */
 void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & read_flag, bool & ready, bool & controlEnable){
 
     //Posedge
     if(this->cpu_clk == false && clk == true){
         this->cpu_clk = true;
-        //if(this->id == 1)
-        cout<<"CPU: "<< this->id <<endl;
 
         //Start new process if CPU is free
         if(this->cpu_state == FREE){
-            //request();
+            request();
         }
         
         //Print actual state
@@ -66,7 +65,6 @@ void CPU::loop(bool clk,int & data, int & address, bool & write_flag, bool & rea
     //Nededge
      else if(this->cpu_clk == true && clk == false){
         this->cpu_clk = false;
-        cout << "CPU nededge: " << this->id<< endl;
         controlEnable = true;
 
      }
@@ -89,16 +87,16 @@ int CPU::getId(){
 void CPU::getState(){
      switch(this->cpu_state){
         case PROCESSING:
-            cout <<"CPU: "<<this->id<<" Processing" << endl;
+            cout <<"CPU: "<<this->id<<" Processing";
         break;
         case READING:
-            cout <<"CPU: "<<this->id<< " Reading" << endl;
+            cout <<"CPU: "<<this->id<< " Reading";
         break;
         case WRITING:
-            cout <<"CPU: "<<this->id << " Writing" << endl;;
+            cout <<"CPU: "<<this->id << " Writing";
         break;
         case FREE:
-            cout <<"CPU: "<<this->id << "Free" << endl;
+            cout <<"CPU: "<<this->id << " Free";
         break;
     }
 }
@@ -109,7 +107,7 @@ void CPU::getState(){
  */
 void CPU::process(){
 
-    //cout << "Processing" << endl;
+    
 
     //Decrease process timer each cycle
     this->process_timer--;
@@ -117,6 +115,10 @@ void CPU::process(){
     //Check if processing time finish
     if(this->process_timer == 0){
         this->cpu_state = FREE;
+        cout <<"\n****************CPU: "<<this->id<<" Processing Finished****************"<<endl;
+    }
+    else{
+        cout <<"\n****************CPU: "<<this->id<<" Processing Data****************"<<endl;
     }
     
 }
@@ -176,12 +178,11 @@ void CPU::read(int & data, int & address, bool & read_flag, bool & ready){
  * 
  */
 void CPU::request(){
-    this->cpu_state = static_cast<CPU::State>(rand() % 3);
-    //this->cpu_state = WRITING;
+    //this->cpu_state = static_cast<CPU::State>(rand() % 3);
+    this->cpu_state = WRITING;
 
     //Reset processing timer variable
     if(this->cpu_state == PROCESSING){
-        this->cpu_state = WRITING;
-        //this->process_timer = 2; //Make it random
+        this->process_timer = 2; 
     }
 }

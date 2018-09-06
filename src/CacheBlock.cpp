@@ -1,3 +1,11 @@
+/**
+ * @brief Cache block model
+ * 
+ * @file CacheBlock.cpp
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #include "CacheBlock.h"
 
 /**

@@ -1,3 +1,11 @@
+/**
+ * @brief Memory model
+ * 
+ * @file Memory.cpp
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #include "Memory.h"
 
 
@@ -9,9 +17,10 @@ Memory::Memory(){
     //Initialize control variables
     this->running=false;
     this->memory_clk=false;
+    this->counter = 0;
     //Initialize memory in zeros
     for(int i = 0; i < 16; i++){
-        blocks[i] = i;
+        blocks[i] = 0;
     }
 }
 
@@ -22,12 +31,13 @@ Memory::Memory(){
 Memory::~Memory(){}
 
 /**
- * @brief 
+ * @brief Uṕdate memory every clock
  * 
  * @param clk 
  * @param bussy 
- * @param address 
  * @param actualMessage 
+ * @param snoop_flag 
+ * @param queue 
  */
 void Memory::loop(bool clk, bool & bussy, BusMessage * actualMessage, vector<bool> *snoop_flag, vector<BusMessage*> * queue){
         
@@ -35,36 +45,53 @@ void Memory::loop(bool clk, bool & bussy, BusMessage * actualMessage, vector<boo
     if (this->memory_clk == false && clk == true)
     {
         this->memory_clk = true;
-        cout << "Memory" << endl;
+        //cout << "Memory" << endl;
         
         if(bussy == true){
             switch (actualMessage->getType()){
                 //READ
                 case 0:
-                    cout <<"########## MEMORY: Search for data in address:"<<actualMessage->getAddress()<<"##########"<<endl;
-                    actualMessage->setType(2);
-                    actualMessage->setData(this->blocks[actualMessage->getAddress()]);
-                    cout << "########## Done Read ##########" <<  endl;
 
-                    //Set flags for every core
-                    this->broadcast(snoop_flag);
-                    //Free  bus
-                    bussy = false;
-                    queue->erase(queue->begin());
+                    if(this->counter == 1){
+                        actualMessage->setData(this->blocks[actualMessage->getAddress()]);
+                        //Set flags for every core
+                        actualMessage->setType(2);
+                        this->broadcast(snoop_flag);
 
+                        //Free  bus
+                        bussy = false;
+                        queue->erase(queue->begin());
+                        this->counter = 0;
+                        cout << "########## MEMORY: Done read ##########" <<  endl;
+                    }
+                    else if(this->counter == 0){
+                        cout <<"\n########## MEMORY: Search for data in address:"<<actualMessage->getAddress()<<"##########"<<endl;
+                        this->counter++;
+                    }
+                    
                     break;
                 //WRITE
                 case 1:
-                    cout <<"########## MEMORY: Write in address: "<<actualMessage->getAddress()<<" data:"<<actualMessage->getData()<<" ##########"<<endl;
-                    this->blocks[actualMessage->getAddress()] = actualMessage->getData();
-                    actualMessage->setType(3);
-                    cout << "########## Done Write ##########" <<  endl;
 
-                    //Set flags for every core
-                    this->broadcast(snoop_flag);
-                    bussy = false;
-                    //Free bus
-                    queue->erase(queue->begin());
+                    if(this->counter == 1){
+                        this->blocks[actualMessage->getAddress()] = actualMessage->getData();                        
+                        //Set flags for every core
+                        actualMessage->setType(3);
+                        this->broadcast(snoop_flag);
+                        
+                        
+                        //Free bus
+                        bussy = false;
+                        queue->erase(queue->begin());
+                        this->counter = 0;
+
+                        cout << "########## MEMORY: Done write ##########" <<  endl;
+                    }
+                    else if(this->counter == 0){
+                        cout <<"########## MEMORY: Write in address: "<<actualMessage->getAddress()<<" data:"<<actualMessage->getData()<<" ##########"<<endl;
+                        this->counter++;
+                    }
+
                     break;
             }
                 
@@ -73,7 +100,7 @@ void Memory::loop(bool clk, bool & bussy, BusMessage * actualMessage, vector<boo
     }
     //Nededge
     else if (this->memory_clk == true && clk == false){
-                cout << "Memory Nededge" << endl;
+                //cout << "Memory Nededge" << endl;
 
         this->memory_clk = false;
     }

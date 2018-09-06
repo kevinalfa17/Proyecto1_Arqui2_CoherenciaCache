@@ -1,3 +1,11 @@
+/**
+ * @brief Control unit model
+ * 
+ * @file Control.cpp
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #include "Control.h"
 
 /**
@@ -51,21 +59,52 @@ string Control::getStateString(int block_number){
     }
 }
 
+/**
+ * @brief Return states in string format inside vector
+ * 
+ * @return vector<string> 
+ */
+vector<string> Control::getStates(){
+    vector<string> states_vector;
+
+    for(int i = 0; i < 16; i++){
+        switch(this->states->at(i)){
+            case INVALID:
+                states_vector.push_back("INVALID");
+            break;
+            case MODIFIED:
+                states_vector.push_back("MODIFIED");
+            break;
+            case SHARED:
+                states_vector.push_back("SHARED");
+            break;
+        }
+    }
+
+    return states_vector;
+
+}
+
 
 /**
- * @brief 
+ * @brief Update control unit every clock
  * 
- * @param clk Global clock
- * @param data data from/to cpu
- * @param address address from/to cpu
- * @param write_flag_cpu true if cpu needs to write
- * @param read_flag_cpu true if cpu needs to read
- * @param write_flag_cache true if control unit needs to write in the cache
- * @param read_flag_cache true if cpu needs to write in the cache
- * @param snoop_flag true if snoop is in the bus
- * @param snoop_address address from snoop message
- * @param snoop_type type from snoop message
- * @param snoop_data data from snoop message
+ * @param clk 
+ * @param data 
+ * @param address 
+ * @param write_flag_cpu 
+ * @param read_flag_cpu 
+ * @param write_flag_cache 
+ * @param read_flag_cache 
+ * @param ready 
+ * @param snoop_flag 
+ * @param queue 
+ * @param actualMessage 
+ * @param snoop_flag_cache 
+ * @param snoop_data_cache 
+ * @param snoop_address_cache 
+ * @param busEnable 
+ * @param cacheEnable 
  */
 void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bool & read_flag_cpu, bool & write_flag_cache, bool & read_flag_cache, bool & ready, vector<bool> * snoop_flag,  vector<BusMessage*> * queue, BusMessage * actualMessage, bool & snoop_flag_cache, int & snoop_data_cache, int & snoop_address_cache, bool & busEnable, bool & cacheEnable){
 
@@ -73,12 +112,8 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
     //Posedge
     if(this->control_clk == false && clk == true){
         this->control_clk = true;
-        //if(this->id == 1)
-        cout<<"Control unit: "<< this->id <<endl;
+        //cout<<"Control unit: "<< this->id <<endl;
         int state;
-
-        //cout<<"wait: "<< this->wait <<endl;
-
         //Read data in memory block
         if(read_flag_cpu && !this->wait && !ready){
 
@@ -86,12 +121,12 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
             //Get state of block_number = address
             state = this->states->at(address);
 
-            cout <<"****************Se hará un READ en el CPU"<<this->id<<" a la direccion: "<<address<<"***************"<<endl;
+            cout <<"\n****************Se hará un READ en el CPU"<<this->id<<" a la direccion: "<<address<<"***************"<<endl;
 
 
             switch(state){
                 case Control::INVALID:
-                    cout << "*********************INVALID: Read Miss in cache: CPU" << this->id <<"******************"<<endl;
+                    cout << "****************INVALID: Read Miss in cache: CPU" << this->id <<"******************"<<endl;
 
                     //Put read message in bus queue
                     BusMessage * message;
@@ -103,11 +138,10 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
                     break;
                 case Control::MODIFIED:
                     //HIT
-                    cout << "******************MODIFIED: Read Hit in cache: CPU" << this->id <<"******************"<<endl;
+                    cout << "****************MODIFIED: Read Hit in cache: CPU" << this->id <<"******************"<<endl;
 
                     //Traer dato de cache
                     read_flag_cache = true;
-                    cacheEnable = true;
 
                     //Tell processor data is ready
                     ready = true;
@@ -119,11 +153,10 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
                     break;
                 case Control::SHARED:
                     //HIT
-                    cout << "******************SHARED: Read Hit in cache: CPU" << this->id <<"******************"<<endl;
+                    cout << "****************SHARED: Read Hit in cache: CPU" << this->id <<"******************"<<endl;
                     
                     //Traer dato de cache
                     read_flag_cache = true;
-                    cacheEnable = true;
 
                     //Tell processor data is ready
                     ready = true;
@@ -141,18 +174,17 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
             //Get state of block_number = address
             state = this->states->at(address);
 
-            cout <<"****************Se hará un WRITE en el CPU"<<this->id<<" A la direccion: "<<address<<"***************"<<endl;
-
+            cout <<"\n****************Se hará un WRITE en el CPU"<<this->id<<" A la direccion: "<<address<<" Dato: "<<data<<"***************"<<endl;
 
             switch(state){
                 case Control::INVALID:
-                    cout << "******************INVALID: Write Miss in cache: CPU" << this->id <<"******************"<< endl;
+                    cout << "****************INVALID: Write Miss in cache: CPU" << this->id <<"******************"<< endl;
                     break;
                 case Control::MODIFIED:
-                    cout << "******************MODIFIED: Write Hit in cache, write through: CPU" << this->id <<"******************"<<  endl;
+                    cout << "*****************MODIFIED: Write Hit in cache, write through: CPU" << this->id <<"******************"<<  endl;
                     break;
                 case Control::SHARED:
-                     cout << "******************MODIFIED: Write Hit in cache, write through: CPU" << this->id <<"******************"<<  endl;
+                     cout << "****************MODIFIED: Write Hit in cache, write through: CPU" << this->id <<"******************"<<  endl;
                     break;
             }
             
@@ -165,16 +197,17 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
         }
 
         busEnable = true;
+        cacheEnable = true;
     }
     //Nededge
     else if(this->control_clk == true && clk == false){
         this->control_clk = false;
-        cout << "Control nededge: " << this->id << endl;
+        //cout << "Control nededge: " << this->id << endl;
 
         //Handle an Snoop if snoop_flag is true for this core
         if(snoop_flag->at(this->id)){
             
-            snoop_flag->at(this->id) = 0; //Message received
+            snoop_flag->at(this->id) = false; //Message received
 
             //Get state of block_number = message address
             State state = this->states->at(actualMessage->getAddress());
@@ -185,7 +218,7 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
                     //The read of this core is being processed
                     if(actualMessage->getType() == 0 && actualMessage->getId() == this->id){ 
                         
-                        cout<<"Control: "<<this->id<<"READ BEING PROCESSED"<<endl;
+                        cout<<"Control: "<<this->id<<" READ BEING PROCESSED"<<endl;
 
                     }
 
@@ -201,11 +234,14 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
 
                         cout<<"Control: "<<this->id<<" READ READY"<<endl;
 
-                        //Put data in cache
-                        
                         //Tell processor read is ready
                         ready = true;
                         data = actualMessage->getData();
+                        
+                        //Put data in cache
+                        snoop_flag_cache = true;
+                        snoop_data_cache = data;
+                        snoop_address_cache = actualMessage->getAddress();
 
                         //Free controller unit
                         this->wait = false;
@@ -220,12 +256,15 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
 
                         cout<<"Control: "<<this->id<<" WRITE READY"<<endl;
 
-                        //Put data in cache
-                        
                         //Tell processor read is ready
                         ready = true;
                         data = actualMessage->getData();
-
+                        
+                        //Put data in cache
+                        snoop_flag_cache = true;
+                        snoop_data_cache = data;
+                        snoop_address_cache = actualMessage->getAddress();
+                        
 
                         //Free controller unit
                         this->wait = false;
@@ -271,12 +310,14 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
                     else if(actualMessage->getType() == 3 && actualMessage->getId() == this->id){ 
                         cout<<"Control: "<<this->id<<" WRITE READY"<<endl;
 
-                        //Put data in cache
-                        
                         //Tell processor read is ready
                         ready = true;
                         data = actualMessage->getData();
-
+                        
+                        //Put data in cache
+                        snoop_flag_cache = true;
+                        snoop_data_cache = data;
+                        snoop_address_cache = actualMessage->getAddress();
 
                         //Free controller unit
                         this->wait = false;
@@ -306,7 +347,7 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
                         //Put data in cache
                         snoop_flag_cache = true;
                         snoop_data_cache = data;
-                        cacheEnable = true;
+                        snoop_address_cache = actualMessage->getAddress();
 
                         //Free controller unit
                         this->wait = false;
@@ -328,8 +369,7 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
                         //Put data in cache
                         snoop_flag_cache = true;
                         snoop_data_cache = data;
-                        cacheEnable = true;
-
+                        snoop_address_cache = actualMessage->getAddress();
 
                         //Free controller unit
                         this->wait = false;
@@ -354,6 +394,7 @@ void Control::loop(bool clk,int & data, int & address, bool & write_flag_cpu, bo
             }
         }
         busEnable = true;
+        cacheEnable = true;
      }
 }
 

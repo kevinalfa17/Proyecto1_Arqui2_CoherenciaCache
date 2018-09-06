@@ -1,3 +1,11 @@
+/**
+ * @brief Clock model
+ * 
+ * @file Clock.cpp
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #include "Clock.h"
 
 /**
@@ -14,6 +22,11 @@ Clock::Clock(){
  */
 Clock::~Clock(){}
     
+/**
+ * @brief Alternates global clock
+ * 
+ * @param clk 
+ */
 void Clock::loop(bool & clk){
     
     clk = !clk;

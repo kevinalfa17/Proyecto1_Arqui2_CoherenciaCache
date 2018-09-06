@@ -1,3 +1,11 @@
+/**
+ * @brief CPU model
+ * 
+ * @file CPU.h
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #ifndef CPU_H
 #define CPU_H
 

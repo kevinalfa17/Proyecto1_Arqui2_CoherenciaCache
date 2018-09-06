@@ -1,3 +1,11 @@
+/**
+ * @brief Core model
+ * 
+ * @file Core.h
+ * @author Kevin Alfaro
+ * @date 2018-09-05
+ */
+
 #ifndef CORE_H
 #define CORE_H
 
@@ -46,6 +54,7 @@ public:
     bool isRunning();
     int getId();
     void printCache();
+    string printCPUStatus();
 
 };
 
